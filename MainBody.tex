@@ -1,39 +1,50 @@
-% 文件名：Mainbody.tex
+% 文件名：MainBody.tex
 % 文件描述：以 scuthesis 四川大学学位论文文档类为基础的 LaTeX 模版
 % 作者：LegendaryLeo
-% 修改日期：2016年6月3日
-
+% 修改日期：2019年5月3日
 % 选用scuthesis文档类，参数master为硕士论文，可选doctor和bachelor，分别对应博士和学士
-\documentclass[doctor,UTF8,hyperref]{./Template/scuthesis}
+\documentclass[bachelor,UTF8,hyperref]{./Template/scuthesis}
+\usepackage{fancyvrb}
+\usepackage{xcolor}
+\usepackage{dirtree}
+\usepackage{textcomp}
+\renewcommand*{\DTstylecomment}{\color{blue}\kaishu}
+\usepackage{supertabular}
+\usepackage{longtable}
+\usepackage{graphicx} % 插入图片
+\usepackage{float} %设置图片浮动位置的宏包
+\usepackage{subfigure} %插入多图时用子图显示的宏包
+\usepackage{listings}
+\usepackage{makecell}
 %\newcommand{\supercite}[1]{\textsuperscript{\cite{#1}}}
 \begin{document}
 % 设置文档信息
-\title{基于深度学习的恶意样本检测与对抗技术研究}
-\ENGtitle{The Dissertation Title}
-\CoverTitle{基于深度学习的恶意样本检测与对抗技术研究} %封面标题
-\author{方智阳}
-\ENGauthor{Zhiyang Fang}
-\accomplishdate{2019年9月}
+\title{图书异地租借系统}
+\ENGtitle{Books Off-site Rental System}
+\CoverTitle{图书异地租借系统} %封面标题
+\author{邓雪}
+\ENGauthor{DengXue}
+\accomplishdate{2019年5月}
 \school{计算机学院}
-\supervisor{王俊峰\quad教授}
-\ENGsupervisor{Prof. Junfeng Wang}
-\major{计算机科学与技术}
-\ENGmajor{Computer science and technology}
-\direction{网络与信息安全}
+\supervisor{蒲蔚\quad教授}
+\ENGsupervisor{Lecturer. Pu Wei}
+\major{物联网工程}
+\ENGmajor{Internet of Things Engineering}
+\direction{物联网}
 \ENGdirection{Direction Name}
-\defensedate{答辩日期}
-\keywords{关键词1，关键词2，关键词3，关键词4，关键词5}
-\ENGkeywords{Keyword1, Keyword2, Keyword3, Keyword4, Keyword5}
+\defensedate{2019.05}
+\keywords{图书馆；异地租借；物流；web系统}
+\ENGkeywords{Libray; Off-site rental; Express; Web System}
 % 设置论文正文前的页码、页眉等
-\frontmatter\pagenumbering{Roman}\pagestyle{fancy}\makechaptertitlecenter
 % 自动制作标题
 \maketitle
+\frontmatter\pagenumbering{Roman}\pagestyle{fancy}\makechaptertitlecenter
 % 包含摘要
 \include{Chapters/0_0_Abstract}
 % 包含缩略词表
-\include{Chapters/0_1_Abbreviations}
+% \include{Chapters/0_1_Abbreviations}
 % 包含符号表
-\include{Chapters/0_2_Symbols}
+% \include{Chapters/0_2_Symbols}
 % 自动制作目录
 \maketoc
 % 设置论文正文部分的页码、页眉等
@@ -41,6 +52,9 @@
 % 包含第一章、第二章等等
 \include{Chapters/Introduction}
 \include{Chapters/Chapter2}
+\include{Chapters/Chapter3}
+\include{Chapters/Chapter4}
+\include{Chapters/Chapter5}
 % 设置论文正文后的式样
 \backmatter\makechaptertitlecenter
 % 按国标自动制作参考文献
@@ -49,7 +63,6 @@
 	\bibliographystyle{./Template/chinesebst}\bibliography{ReferenceBase}
 \end{reference}
 % 包含在读期间科研成果
-\include{Chapters/Achievements}
 % 包含论文原创性声明(请勿修改)
 \include{Chapters/OriginalStatement}
 % 包含论文版权授权书(请勿修改)

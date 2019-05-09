@@ -1,0 +1,198 @@
+%!TEX root = ../MainBody.tex
+
+% 第三章
+\chapter{系统实现}% 使用\cite{}命令引用数据库中文献
+\section{运行平台}
+\begin{itemize}
+    \item MacOS操作系统
+    \item 开发工具：Visual Studio Code
+    \item 浏览器：Chrome、Safari
+    \item 编程语言：HTML5+SCSS+JavaScript(ECMAScript 6.0)
+    \item 数据库：MongoDB
+\end{itemize}
+\section{功能界面}
+\subsection{登录界面}
+\subsection{主界面(图书列表界面)}
+\section{代码}
+\subsection{项目结构}
+\begin{lstlisting}[numberstyle=\tiny,keywordstyle=\color{blue!70},
+    commentstyle=\color{red!50!green!50!blue!50},frame=shadowbox,
+    rulesepcolor=\color{red!20!green!20!blue!20},basicstyle=\ttfamily]
+    |- dist // webpack 打包输出目录
+    |- config    // webpack 构建配置目录  
+    ​    |- tpl  
+    ​        |- index.html 入口  
+    ​    |- webpack.config.js    //  webpack 配置文件  
+    |- node-modules  //  公共依赖  
+    |- node-server  //  node 端  
+    ​    |- main.js  
+    ​    |- middleware // 中间件  
+    ​    |- proxy.config.js // 前后端proxy配置   
+    ​    |- route // 路由配置  
+    |-- web-client 
+    ​    |- common 公共资源，如图片、SVG等  
+    ​    |- components   // 公共组件  
+    ​    |- domain   // 处理网络请求   
+    ​    |- model    // 页面与api请求之间的业务中间层  
+    ​    |- styles   // 公共样式  
+    ​    |- utils  //公共工具  
+    ​    |- page  //页面 
+    ​        |- A   // 页面A 
+    ​            |- index.tsx  // 页面逻辑  
+    ​            |- store.ts  // mobX 数据管理   
+    ​        |- B  
+    ​            |- index.tsx  
+    ​            |- store.ts  
+    |- package.json   
+    |- .gitignore  
+    |- README.md   
+    |- stylelintrc.js // eslint 代码格式检查配置文件  
+    |- tslint.json // tslint 代码格式检查配置文件   
+    |- theme.js  // 修改antd主题色   
+    |- tsconfig.json    
+\end{lstlisting}
+\subsection{关键代码}
+界面框架及静态路由：
+
+\begin{lstlisting}[numberstyle=\tiny,keywordstyle=\color{blue!70},
+    commentstyle=\color{red!50!green!50!blue!50},frame=shadowbox,
+    rulesepcolor=\color{red!20!green!20!blue!20},basicstyle=\ttfamily]
+export default class AppWrapper extends React.Component {
+  render() {
+      return (
+      <HashRouter>
+          <AppLayout>
+              <Route exact path="/" component={BookList} >
+              </Route>
+              <Route path="/me" component={Me}></Route>
+              <Route path="/bookList" component={BookList}>
+              </Route>
+          </AppLayout>
+          
+      </HashRouter>
+      )
+  }
+    }    
+\end{lstlisting}
+视图展示：
+
+\begin{lstlisting}[numberstyle=\tiny,keywordstyle=\color{blue!70},
+    commentstyle=\color{red!50!green!50!blue!50},frame=shadowbox,
+    rulesepcolor=\color{red!20!green!20!blue!20},basicstyle=\ttfamily]
+    @observer
+export default class BookList extends Component {
+    onSearch = (val: string) =>{
+        BookStore.queryBookList(val);
+    }
+    render() {
+        const { keyword, bookList } = BookStore;
+        return (
+            <Layout className="container">
+            <Content>
+                <List
+                dataSource={bookList}
+                renderItem={
+                  (item: IBook) => <BookItem key={item.id
+                  }
+                item={item}/>}>
+                </List> 
+            </Content>         
+            </Layout>
+        )
+    }
+}
+\end{lstlisting}
+数据处理：
+
+\begin{lstlisting}[numberstyle=\tiny,keywordstyle=\color{blue!70},
+    commentstyle=\color{red!50!green!50!blue!50},frame=shadowbox,
+    rulesepcolor=\color{red!20!green!20!blue!20},basicstyle=\ttfamily]
+    @action
+    queryBookList = async () => {
+      const pageNo = this.pagination.current || 1;
+      const params = {
+        ...this.keyword,
+        pageNo,
+        pageSize: PAGE_SIZE,
+      }
+      this.tableLoading = true;
+      const res = await getBookList(params);
+      if (res && res.data.code === 200) {
+        const { data, page } = res.data;
+        if (pageNo > 1) {
+          this.bookList.push(...data);
+        } else {
+          this.bookList = data;
+        }
+        this.pagination.total = page.totalCount;
+      }
+      this.tableLoading = false;
+    };
+\end{lstlisting}
+网络请求层：
+
+\begin{lstlisting}[numberstyle=\tiny,keywordstyle=\color{blue!70},
+    commentstyle=\color{red!50!green!50!blue!50},frame=shadowbox,
+    rulesepcolor=\color{red!20!green!20!blue!20},basicstyle=\ttfamily]
+export const getBookList = async(keyword: string) => (
+await get('/api/bookList', {
+        params: {
+                keyword,
+                }
+    }));
+\end{lstlisting}
+Node层
+
+\begin{lstlisting}[numberstyle=\tiny,keywordstyle=\color{blue!70},
+    commentstyle=\color{red!50!green!50!blue!50},frame=shadowbox,
+    rulesepcolor=\color{red!20!green!20!blue!20},basicstyle=\ttfamily]
+{
+    url: '/api/abtest/list',
+        async controller(response, thriftExec) {
+            const ret = await thriftExec(ABAdminService,
+            'queryABConfigs',
+            {
+                arg0: this.query,
+            });
+            response.sendJSON(
+              normalize(ret, {
+                dataPath: 'items',
+                pagePath: 'page',
+              }),
+            );
+          },
+}   
+\end{lstlisting}
+
+CSRF拦截
+
+\begin{lstlisting}[numberstyle=\tiny,keywordstyle=\color{blue!70},
+    commentstyle=\color{red!50!green!50!blue!50},frame=shadowbox,
+    rulesepcolor=\color{red!20!green!20!blue!20},basicstyle=\ttfamily]
+export default async function(next) {
+  if (this.req.method === 'GET') {
+    this.cat.logEvent('CSRF-GET', this.req.url);
+    return await next;
+  }
+  let referer = this.req.headers['referer'] || '';
+  if (!referer) {
+    this.cat.logEvent('CSRF-NoRef', this.req.url);
+    return await next();
+  }
+  if (referer) {
+    this.cat.logEvent('CSRF-Ref', referer);
+  }
+  referer = url.parse(referer);
+  if (
+    whiteList.some(domain => {
+      return domain.test(referer.hostname);
+    })
+  ) {
+    return await next;
+  }
+  this.cat.logEvent('CSRF-Forbidden',
+  referer && referer.hostname);
+  this.status = 403;
+  this.body = 'Forbiddened';
+}
+\end{lstlisting}
